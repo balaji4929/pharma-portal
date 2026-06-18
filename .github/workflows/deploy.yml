@@ -1,0 +1,40 @@
+name: Deploy to Pulss VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install & Build frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to Pulss VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PULSS_HOST }}
+          username: ${{ secrets.PULSS_USER }}
+          password: ${{ secrets.PULSS_PASSWORD }}
+          timeout: 120s
+          script: |
+            cd /var/www/pharma-portal
+            git pull origin main
+            npm install
+            npm run build
+            cd server
+            npm install
+            pm2 restart pharma-api --update-env
+            echo "✅ pharma-portal deployed"
