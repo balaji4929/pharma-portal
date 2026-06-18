@@ -4,7 +4,7 @@ import {
   LayoutDashboard, ShoppingCart, Gift, Truck, Settings,
   ChevronDown, ChevronRight, Pill, Building2, FileText,
   PackageCheck, CreditCard, Package, Users, Star,
-  BarChart3, MapPin, ClipboardList, Send, X
+  BarChart3, MapPin, ClipboardList, Send, X, BarChart2
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -14,6 +14,12 @@ const navConfig = [
     icon: LayoutDashboard,
     path: '/',
     exact: true,
+    module: null,
+  },
+  {
+    label: 'Sales Analysis',
+    icon: BarChart2,
+    path: '/sales',
     module: null,
   },
   {

@@ -1,8 +1,29 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, Gift, Truck, TrendingUp, Package, Users, ArrowRight, Activity } from 'lucide-react'
+import { ShoppingCart, Gift, Truck, BarChart2, TrendingUp, Package, Users, ArrowRight, Activity } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useApp } from '../contexts/AppContext'
+
+// Sales stats from localStorage
+function getSalesStats() {
+  try {
+    const meta = localStorage.getItem('pharma_sales_meta')
+    const data = localStorage.getItem('pharma_sales_data')
+    if (!meta || !data) return [{ label: 'No data yet', value: '—' }, { label: 'Upload to start', value: '↑' }, { label: 'Analysis ready', value: '✓' }]
+    const m = JSON.parse(meta)
+    const d = JSON.parse(data)
+    const totalRev = d.reduce((s, r) => {
+      const v = parseFloat(String(r.revenue ?? '').replace(/[₹$,\s]/g, ''))
+      return s + (isNaN(v) ? 0 : v)
+    }, 0)
+    const fmtRev = totalRev >= 1e5 ? `₹${(totalRev/1e5).toFixed(1)}L` : totalRev > 0 ? `₹${totalRev.toFixed(0)}` : '—'
+    return [
+      { label: 'Products', value: new Set(d.map(r => r.product_name)).size },
+      { label: 'Total Revenue', value: fmtRev },
+      { label: 'Rows Loaded', value: m.rowCount },
+    ]
+  } catch { return [{ label: 'Upload Excel/CSV', value: '↑' }, { label: 'Auto-analysis', value: '✓' }, { label: 'Charts & Graphs', value: '📊' }] }
+}
 
 const modules = [
   {
@@ -49,6 +70,17 @@ const modules = [
       { label: 'Transporters', value: data.transporters.length },
     ],
     features: ['Dispatch Management', 'Transporter Registry', 'Live Tracking', 'Delivery Confirmation'],
+  },
+  {
+    id: null, // accessible by all
+    label: 'Sales Analysis',
+    description: 'Upload your billing software export (Excel/CSV) for instant charts, top-product rankings, stock alerts & monthly trends',
+    icon: BarChart2,
+    path: '/sales',
+    gradient: 'from-teal-500 to-cyan-500',
+    glow: 'group-hover:shadow-cyan-500/25',
+    stats: () => getSalesStats(),
+    features: ['Excel / CSV Upload', 'Auto Column Detection', 'Revenue & Units Charts', 'Stock Level Alerts'],
   },
 ]
 
@@ -107,9 +139,9 @@ export default function Home() {
       {/* Department Cards */}
       <div>
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">Departments</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {modules.map(mod => {
-            const accessible = canAccess(mod.id)
+            const accessible = mod.id === null ? true : canAccess(mod.id)
             const stats = mod.stats(data)
             return (
               <div

@@ -8,6 +8,7 @@ import Layout from './components/Layout'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import Settings from './pages/Settings'
+import SalesDashboard from './pages/sales/SalesDashboard'
 
 // Purchase
 import PurchaseDashboard from './pages/purchase/PurchaseDashboard'
@@ -46,6 +47,7 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Home />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="sales" element={<SalesDashboard />} />
 
         {/* Purchase */}
         <Route path="purchase" element={<PurchaseDashboard />} />
