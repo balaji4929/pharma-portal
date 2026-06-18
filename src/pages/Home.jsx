@@ -1,0 +1,169 @@
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ShoppingCart, Gift, Truck, TrendingUp, Package, Users, ArrowRight, Activity } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { useApp } from '../contexts/AppContext'
+
+const modules = [
+  {
+    id: 'purchase',
+    label: 'Purchase Department',
+    description: 'Manufacturer communication, quotations, purchase orders, batch receipts & payment tracking',
+    icon: ShoppingCart,
+    path: '/purchase',
+    gradient: 'from-blue-600 to-indigo-600',
+    glow: 'group-hover:shadow-blue-500/25',
+    stats: (data) => [
+      { label: 'Active POs', value: data.purchaseOrders.filter(p => p.status !== 'received').length },
+      { label: 'Pending Quotes', value: data.quotationRequests.filter(q => q.status === 'sent').length },
+      { label: 'Manufacturers', value: data.manufacturers.length },
+    ],
+    features: ['Quote Request via Email', 'PO Management', 'Batch Receipt Tracking', 'Payment Records'],
+  },
+  {
+    id: 'gift',
+    label: 'Gift Article Management',
+    description: 'Chemist loyalty schemes, distributor data entry, gift inventory & fulfillment lifecycle',
+    icon: Gift,
+    path: '/gift',
+    gradient: 'from-pink-600 to-rose-600',
+    glow: 'group-hover:shadow-pink-500/25',
+    stats: (data) => [
+      { label: 'Active Schemes', value: data.schemes.filter(s => s.status === 'active').length },
+      { label: 'Enrolled Chemists', value: data.chemists.length },
+      { label: 'Pending Gifts', value: data.giftFulfillments.filter(g => g.status !== 'delivered').length },
+    ],
+    features: ['Scheme Management', 'Chemist 360 View', 'Gift Inventory', 'Fulfillment Tracking'],
+  },
+  {
+    id: 'logistics',
+    label: 'Logistics Management',
+    description: 'Stock dispatch from warehouse to distributors & chemists via transporters with live tracking',
+    icon: Truck,
+    path: '/logistics',
+    gradient: 'from-amber-600 to-orange-600',
+    glow: 'group-hover:shadow-amber-500/25',
+    stats: (data) => [
+      { label: 'In Transit', value: data.dispatches.filter(d => d.status === 'in_transit').length },
+      { label: 'Pending Dispatch', value: data.dispatches.filter(d => d.status === 'pending').length },
+      { label: 'Transporters', value: data.transporters.length },
+    ],
+    features: ['Dispatch Management', 'Transporter Registry', 'Live Tracking', 'Delivery Confirmation'],
+  },
+]
+
+export default function Home() {
+  const navigate = useNavigate()
+  const { user, canAccess } = useAuth()
+  const { data } = useApp()
+
+  const totalStats = [
+    { label: 'Total Purchase Orders', value: data.purchaseOrders.length, icon: ShoppingCart, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { label: 'Active Schemes', value: data.schemes.filter(s => s.status === 'active').length, icon: Activity, color: 'text-pink-400', bg: 'bg-pink-500/10' },
+    { label: 'Chemists Enrolled', value: data.chemists.length, icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Dispatches Active', value: data.dispatches.filter(d => d.status === 'in_transit').length, icon: Package, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+  ]
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      {/* Welcome Banner */}
+      <div className="relative glass-card p-6 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 to-brand-accent/5 pointer-events-none" />
+        <div className="relative">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white">
+                Welcome back, {user?.name?.split(' ')[0]}! 👋
+              </h1>
+              <p className="text-slate-400 mt-1">
+                {user?.role === 'admin'
+                  ? 'Full access — managing all departments'
+                  : `Viewing ${user?.department || 'all'} department operations`}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-brand-primary/20 border border-brand-primary/30 rounded-lg">
+              <TrendingUp size={16} className="text-brand-primary" />
+              <span className="text-brand-primary text-sm font-medium">Operations Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overview Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {totalStats.map((s, i) => (
+          <div key={i} className="stat-card">
+            <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center`}>
+              <s.icon size={20} className={s.color} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{s.value}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Department Cards */}
+      <div>
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">Departments</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {modules.map(mod => {
+            const accessible = canAccess(mod.id)
+            const stats = mod.stats(data)
+            return (
+              <div
+                key={mod.id}
+                onClick={() => accessible && navigate(mod.path)}
+                className={`glass-card p-6 transition-all duration-300 group relative overflow-hidden
+                  ${accessible
+                    ? 'cursor-pointer hover:border-slate-600 hover:shadow-2xl ' + mod.glow
+                    : 'opacity-50 cursor-not-allowed'
+                  }`}
+              >
+                {/* Top gradient stripe */}
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${mod.gradient}`} />
+
+                {/* Icon */}
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${mod.gradient} flex items-center justify-center shadow-lg mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                  <mod.icon size={22} className="text-white" />
+                </div>
+
+                {/* Title & Description */}
+                <h3 className="text-base font-bold text-white mb-2">{mod.label}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed mb-5">{mod.description}</p>
+
+                {/* Stats row */}
+                <div className="grid grid-cols-3 gap-2 mb-5">
+                  {stats.map((s, i) => (
+                    <div key={i} className="text-center">
+                      <p className="text-xl font-bold text-white">{s.value}</p>
+                      <p className="text-[10px] text-slate-500 leading-tight">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Features */}
+                <div className="space-y-1 mb-5">
+                  {mod.features.map(f => (
+                    <div key={f} className="flex items-center gap-2 text-xs text-slate-400">
+                      <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${mod.gradient}`} />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA */}
+                {accessible && (
+                  <div className={`flex items-center gap-2 text-sm font-medium bg-gradient-to-r ${mod.gradient} bg-clip-text text-transparent group-hover:gap-3 transition-all`}>
+                    Open Module <ArrowRight size={14} className={`bg-gradient-to-r ${mod.gradient} text-white rounded-full`} />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
