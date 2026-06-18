@@ -24,7 +24,7 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({ name: user?.name || '', phone: '', email: user?.email || '' })
   const [pass, setPass] = useState({ current: '', new: '', confirm: '' })
   const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false })
-  const [branding, setBranding] = useState({ company: 'PharmaOps Pvt. Ltd.', portal: 'PharmaOps Portal', primaryColor: '#6366f1', accentColor: '#8b5cf6' })
+  const [branding, setBranding] = useState({ company: 'PharmaOps Pvt. Ltd.', portal: 'PharmaOps Portal', primaryColor: '#00e5ff', accentColor: '#00b8d4' })
   const [gmail, setGmail] = useState({ clientId: '', clientSecret: '', redirectUri: 'http://localhost:5000/auth/google/callback', fromEmail: '' })
 
   const passStrength = (p) => {
@@ -90,7 +90,7 @@ export default function SettingsPage() {
             <div className="glass-card p-6 space-y-5">
               <h2 className="text-base font-semibold text-white flex items-center gap-2"><User size={17} className="text-brand-primary" /> Profile Information</h2>
               <div className="flex items-center gap-4 p-4 bg-dark-bg rounded-xl border border-dark-border">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                <div className="w-14 h-14 rounded-xl bg-brand-primary flex items-center justify-center text-[#0d1117] text-xl font-bold flex-shrink-0">
                   {user?.avatar}
                 </div>
                 <div>

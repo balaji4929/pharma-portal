@@ -143,8 +143,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-dark-border">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center shadow-lg">
-              <Pill size={18} className="text-white" />
+            <div className="w-9 h-9 rounded-xl bg-brand-primary flex items-center justify-center">
+              <Pill size={18} className="text-[#0d1117]" />
             </div>
             <div>
               <div className="text-sm font-bold text-white leading-tight">PharmaOps</div>

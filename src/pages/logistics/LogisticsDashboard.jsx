@@ -85,11 +85,11 @@ export default function LogisticsDashboard() {
           <h3 className="section-title mb-4"><Truck size={17} className="text-amber-400" /> Monthly Dispatch vs Delivery</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData} barSize={18} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
               <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1a1d2e', border: '1px solid #2a2d3e', borderRadius: '8px', fontSize: '12px' }} />
-              <Bar dataKey="dispatches" name="Dispatched" fill="#6366f1" radius={[4,4,0,0]} />
+              <Tooltip contentStyle={{ backgroundColor: '#161b22', border: '1px solid #21262d', borderRadius: '8px', fontSize: '12px' }} />
+              <Bar dataKey="dispatches" name="Dispatched" fill="#00e5ff" radius={[4,4,0,0]} />
               <Bar dataKey="delivered" name="Delivered" fill="#10b981" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>

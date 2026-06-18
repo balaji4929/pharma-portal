@@ -85,14 +85,14 @@ export default function App() {
           position="top-right"
           toastOptions={{
             style: {
-              background: '#1a1d2e',
-              color: '#f1f5f9',
-              border: '1px solid #2a2d3e',
+              background: '#161b22',
+              color: '#e6edf3',
+              border: '1px solid #21262d',
               fontSize: '13px',
               borderRadius: '10px',
             },
-            success: { iconTheme: { primary: '#10b981', secondary: '#f1f5f9' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#f1f5f9' } },
+            success: { iconTheme: { primary: '#3fb950', secondary: '#161b22' } },
+            error: { iconTheme: { primary: '#f85149', secondary: '#161b22' } },
           }}
         />
       </AppProvider>

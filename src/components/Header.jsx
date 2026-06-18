@@ -78,7 +78,7 @@ export default function Header({ onMenuClick }) {
             onClick={() => { setShowUser(o => !o); setShowNotif(false) }}
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-dark-hover transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-[#0d1117] text-xs font-bold">
               {user?.avatar}
             </div>
             <div className="hidden sm:block text-left">

@@ -20,10 +20,10 @@ export default function Login() {
   }
 
   const demoAccounts = [
-    { label: 'Admin', email: 'admin@pharmaops.com', pass: 'admin123', color: 'from-indigo-500 to-purple-500' },
-    { label: 'Purchase Exec', email: 'rajesh@pharmaops.com', pass: 'exec123', color: 'from-blue-500 to-cyan-500' },
-    { label: 'Gift Exec', email: 'priya@pharmaops.com', pass: 'exec123', color: 'from-pink-500 to-rose-500' },
-    { label: 'Logistics Exec', email: 'amit@pharmaops.com', pass: 'exec123', color: 'from-amber-500 to-orange-500' },
+    { label: 'Admin', email: 'admin@pharmaops.com', pass: 'admin123', dot: '#00e5ff' },
+    { label: 'Purchase Exec', email: 'rajesh@pharmaops.com', pass: 'exec123', dot: '#58a6ff' },
+    { label: 'Gift Exec', email: 'priya@pharmaops.com', pass: 'exec123', dot: '#3fb950' },
+    { label: 'Logistics Exec', email: 'amit@pharmaops.com', pass: 'exec123', dot: '#d29922' },
   ]
 
   return (
@@ -38,8 +38,8 @@ export default function Login() {
       <div className="w-full max-w-md relative">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-2xl mb-4">
-            <Pill size={28} className="text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-primary mb-4">
+            <Pill size={28} className="text-[#0d1117]" />
           </div>
           <h1 className="text-3xl font-bold text-white">PharmaOps</h1>
           <p className="text-slate-400 mt-1 text-sm">Operations Management Portal</p>
@@ -102,7 +102,7 @@ export default function Login() {
               className="w-full btn-primary justify-center py-3 text-base font-semibold disabled:opacity-50"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[#0d1117]/30 border-t-[#0d1117] rounded-full animate-spin" />
               ) : (
                 <><LogIn size={18} /> Sign In</>
               )}
@@ -119,7 +119,7 @@ export default function Login() {
                   onClick={() => { setEmail(acc.email); setPassword(acc.pass); setError('') }}
                   className="p-2.5 rounded-lg border border-dark-border hover:border-dark-hover bg-dark-hover/50 hover:bg-dark-hover text-xs text-left transition-all duration-150 group"
                 >
-                  <span className={`inline-block w-2 h-2 rounded-full bg-gradient-to-r ${acc.color} mr-1.5`} />
+                  <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: acc.dot }} />
                   <span className="text-slate-300 group-hover:text-white font-medium">{acc.label}</span>
                 </button>
               ))}

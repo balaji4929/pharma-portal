@@ -4,7 +4,7 @@ import { Gift, Users, Star, Package, AlertTriangle, TrendingUp, CheckCircle, Clo
 import { useApp } from '../../contexts/AppContext'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 
-const COLORS = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444']
+const COLORS = ['#00e5ff', '#00b8d4', '#10b981', '#f59e0b', '#ef4444']
 
 export default function GiftDashboard() {
   const navigate = useNavigate()
@@ -86,12 +86,12 @@ export default function GiftDashboard() {
           <h3 className="section-title mb-4"><Package size={17} className="text-pink-400" /> Gift Inventory Status</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={inventoryData} barSize={18}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
               <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1a1d2e', border: '1px solid #2a2d3e', borderRadius: '8px', fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#161b22', border: '1px solid #21262d', borderRadius: '8px', fontSize: '12px' }} />
               <Bar dataKey="available" name="Available" fill="#10b981" radius={[4,4,0,0]} />
-              <Bar dataKey="allocated" name="Allocated" fill="#6366f1" radius={[4,4,0,0]} />
+              <Bar dataKey="allocated" name="Allocated" fill="#00e5ff" radius={[4,4,0,0]} />
               <Bar dataKey="toOrder" name="To Order" fill="#f59e0b" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -104,7 +104,7 @@ export default function GiftDashboard() {
               <Pie data={chemistZoneData} cx="50%" cy="50%" outerRadius={70} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
                 {chemistZoneData.map((_, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: '#1a1d2e', border: '1px solid #2a2d3e', borderRadius: '8px', fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#161b22', border: '1px solid #21262d', borderRadius: '8px', fontSize: '12px' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>

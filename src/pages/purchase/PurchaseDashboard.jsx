@@ -73,11 +73,11 @@ export default function PurchaseDashboard() {
           <h3 className="section-title mb-4"><TrendingUp size={18} className="text-blue-400" /> Monthly PO Value (₹)</h3>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={chartData} barSize={28}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
               <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${(v/1000).toFixed(0)}K`} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" name="Value" fill="#6366f1" radius={[4,4,0,0]} />
+              <Bar dataKey="value" name="Value" fill="#00e5ff" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -85,11 +85,11 @@ export default function PurchaseDashboard() {
           <h3 className="section-title mb-4"><ClipboardList size={18} className="text-indigo-400" /> Orders Count Trend</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
               <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="orders" name="Orders" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6', r: 4 }} />
+              <Line type="monotone" dataKey="orders" name="Orders" stroke="#00b8d4" strokeWidth={2} dot={{ fill: '#00b8d4', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
