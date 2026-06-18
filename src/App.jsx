@@ -9,6 +9,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import Settings from './pages/Settings'
 import SalesDashboard from './pages/sales/SalesDashboard'
+import SuperDashboard from './pages/superdash/SuperDashboard'
 
 // Purchase
 import PurchaseDashboard from './pages/purchase/PurchaseDashboard'
@@ -48,6 +49,7 @@ function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="settings" element={<Settings />} />
         <Route path="sales" element={<SalesDashboard />} />
+        <Route path="super-dashboard" element={<SuperDashboard />} />
 
         {/* Purchase */}
         <Route path="purchase" element={<PurchaseDashboard />} />

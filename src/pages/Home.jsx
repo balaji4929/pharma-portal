@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, Gift, Truck, BarChart2, TrendingUp, Package, Users, ArrowRight, Activity } from 'lucide-react'
+import { ShoppingCart, Gift, Truck, BarChart2, TrendingUp, Package, Users, ArrowRight, Activity, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useApp } from '../contexts/AppContext'
 
@@ -117,6 +117,29 @@ export default function Home() {
               <TrendingUp size={16} className="text-brand-primary" />
               <span className="text-brand-primary text-sm font-medium">Operations Active</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Super Dashboard CTA */}
+      <div
+        onClick={() => navigate('/super-dashboard')}
+        className="relative glass-card p-5 overflow-hidden cursor-pointer group hover:border-brand-primary/40 transition-all duration-300"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-primary to-brand-accent" />
+        <div className="relative flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-brand-primary/15 border border-brand-primary/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+            <Zap size={22} className="text-brand-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-white text-sm">Super Dashboard — Command Center</h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Unified P&amp;L · Sales vs Purchase · Product Margins · Gift Distribution · Expense Tracker
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-brand-primary text-sm font-medium group-hover:gap-2 transition-all flex-shrink-0">
+            Open <ArrowRight size={14} />
           </div>
         </div>
       </div>
