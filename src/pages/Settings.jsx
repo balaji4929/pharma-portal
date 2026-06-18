@@ -19,7 +19,7 @@ const mockLogs = [
 ]
 
 export default function SettingsPage() {
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, changePassword } = useAuth()
   const [tab, setTab] = useState('profile')
   const [profile, setProfile] = useState({ name: user?.name || '', phone: '', email: user?.email || '' })
   const [pass, setPass] = useState({ current: '', new: '', confirm: '' })
@@ -48,6 +48,8 @@ export default function SettingsPage() {
     if (!pass.current) { toast.error('Enter current password'); return }
     if (pass.new.length < 8) { toast.error('New password must be at least 8 characters'); return }
     if (pass.new !== pass.confirm) { toast.error('Passwords do not match'); return }
+    const result = changePassword(pass.current, pass.new)
+    if (!result.success) { toast.error(result.error); return }
     toast.success('Password changed successfully')
     setPass({ current: '', new: '', confirm: '' })
   }

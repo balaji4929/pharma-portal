@@ -2,12 +2,18 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext(null)
 
-const MOCK_USERS = [
+const DEFAULT_USERS = [
   { id: 1, name: 'Admin User', email: 'admin@pharmaops.com', password: 'admin123', role: 'admin', avatar: 'AU' },
   { id: 2, name: 'Rajesh Kumar', email: 'rajesh@pharmaops.com', password: 'exec123', role: 'executive', department: 'purchase', avatar: 'RK' },
   { id: 3, name: 'Priya Sharma', email: 'priya@pharmaops.com', password: 'exec123', role: 'executive', department: 'gift', avatar: 'PS' },
   { id: 4, name: 'Amit Singh', email: 'amit@pharmaops.com', password: 'exec123', role: 'executive', department: 'logistics', avatar: 'AS' },
 ]
+
+const getUsers = () => {
+  const stored = localStorage.getItem('pharma_users')
+  return stored ? JSON.parse(stored) : DEFAULT_USERS
+}
+const saveUsers = (users) => localStorage.setItem('pharma_users', JSON.stringify(users))
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -19,7 +25,8 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setLoading(true)
     await new Promise(r => setTimeout(r, 600))
-    const found = MOCK_USERS.find(u => u.email === email && u.password === password)
+    const users = getUsers()
+    const found = users.find(u => u.email === email && u.password === password)
     if (found) {
       const { password: _, ...safeUser } = found
       setUser(safeUser)
@@ -29,6 +36,15 @@ export function AuthProvider({ children }) {
     }
     setLoading(false)
     return { success: false, error: 'Invalid email or password' }
+  }
+
+  const changePassword = (currentPassword, newPassword) => {
+    const users = getUsers()
+    const idx = users.findIndex(u => u.id === user.id && u.password === currentPassword)
+    if (idx === -1) return { success: false, error: 'Current password is incorrect' }
+    users[idx].password = newPassword
+    saveUsers(users)
+    return { success: true }
   }
 
   const logout = () => {
@@ -47,7 +63,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, isAdmin, canAccess }}>
+    <AuthContext.Provider value={{ user, login, logout, changePassword, loading, isAdmin, canAccess }}>
       {children}
     </AuthContext.Provider>
   )
