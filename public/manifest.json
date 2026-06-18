@@ -1,7 +1,7 @@
 {
-  "name": "PharmaOps Portal",
-  "short_name": "PharmaOps",
-  "description": "Pharma Operations Management Portal",
+  "name": "Glodac Pharma LLP — OMS",
+  "short_name": "Glodac OMS",
+  "description": "Glodac Pharma LLP Operations Management System",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f1117",

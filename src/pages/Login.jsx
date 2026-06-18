@@ -41,8 +41,8 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-primary mb-4">
             <Pill size={28} className="text-[#0d1117]" />
           </div>
-          <h1 className="text-3xl font-bold text-white">PharmaOps</h1>
-          <p className="text-slate-400 mt-1 text-sm">Operations Management Portal</p>
+          <h1 className="text-3xl font-bold text-white">Glodac Pharma LLP</h1>
+          <p className="text-slate-400 mt-1 text-sm">Operations Management System</p>
         </div>
 
         {/* Card */}

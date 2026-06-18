@@ -153,8 +153,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
               <Pill size={18} className="text-[#0d1117]" />
             </div>
             <div>
-              <div className="text-sm font-bold text-white leading-tight">PharmaOps</div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Portal</div>
+              <div className="text-sm font-bold text-white leading-tight">Glodac Pharma</div>
+              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">OMS</div>
             </div>
           </div>
           <button onClick={onMobileClose} className="lg:hidden p-1.5 rounded-lg hover:bg-dark-hover text-slate-400">
@@ -171,7 +171,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
 
         {/* Version */}
         <div className="px-5 py-3 border-t border-dark-border">
-          <p className="text-[10px] text-slate-600 font-medium">PharmaOps Portal v1.0.0</p>
+          <p className="text-[10px] text-slate-600 font-medium">Glodac Pharma LLP — OMS v1.0.0</p>
         </div>
       </aside>
     </>

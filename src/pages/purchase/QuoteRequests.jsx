@@ -91,7 +91,7 @@ Kindly revert at the earliest to help us process the purchase order.
 
 Thanks & Regards,
 Purchase Department
-PharmaOps Pvt. Ltd.`
+Glodac Pharma LLP`
   } : null
 
   return (

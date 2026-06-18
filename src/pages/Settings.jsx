@@ -24,7 +24,7 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({ name: user?.name || '', phone: '', email: user?.email || '' })
   const [pass, setPass] = useState({ current: '', new: '', confirm: '' })
   const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false })
-  const [branding, setBranding] = useState({ company: 'PharmaOps Pvt. Ltd.', portal: 'PharmaOps Portal', primaryColor: '#00e5ff', accentColor: '#00b8d4' })
+  const [branding, setBranding] = useState({ company: 'Glodac Pharma LLP', portal: 'Glodac Pharma OMS', primaryColor: '#00e5ff', accentColor: '#00b8d4' })
   const [gmail, setGmail] = useState({ clientId: '', clientSecret: '', redirectUri: 'http://localhost:5000/auth/google/callback', fromEmail: '' })
 
   const passStrength = (p) => {
@@ -262,12 +262,4 @@ export default function SettingsPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
+                </
