@@ -1,8 +1,24 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, Gift, Truck, BarChart2, TrendingUp, Package, Users, ArrowRight, Activity, Zap } from 'lucide-react'
+import { ShoppingCart, Gift, Truck, BarChart2, TrendingUp, Package, Users, ArrowRight, Activity, Zap, Building2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useApp } from '../contexts/AppContext'
+
+// Distributor stats from localStorage
+function getDistributorStats() {
+  try {
+    const data = localStorage.getItem('pharma_distributors')
+    if (!data) return [{ label: 'No data yet', value: '—' }, { label: 'Upload to start', value: '↑' }, { label: 'Ledger analysis', value: '✓' }]
+    const list = JSON.parse(data)
+    const outstanding = list.reduce((s, d) => s + (d.outstanding || 0), 0)
+    const fmt = n => n >= 1e5 ? `₹${(n/1e5).toFixed(1)}L` : n > 0 ? `₹${Math.round(n).toLocaleString()}` : '—'
+    return [
+      { label: 'Distributors', value: list.length },
+      { label: 'Outstanding', value: fmt(outstanding) },
+      { label: 'Parties', value: list.length > 0 ? 'Active' : '—' },
+    ]
+  } catch { return [{ label: 'Upload Ledger', value: '↑' }, { label: 'Party-wise', value: '✓' }, { label: 'Collections', value: '📊' }] }
+}
 
 // Sales stats from localStorage
 function getSalesStats() {
@@ -81,6 +97,17 @@ const modules = [
     glow: 'group-hover:shadow-cyan-500/25',
     stats: () => getSalesStats(),
     features: ['Excel / CSV Upload', 'Auto Column Detection', 'Revenue & Units Charts', 'Stock Level Alerts'],
+  },
+  {
+    id: null,
+    label: 'Distributor Ledger',
+    description: 'Upload party-wise ledger exports from billing software — auto-populate collections, outstanding & sales per distributor',
+    icon: Building2,
+    path: '/distributors',
+    gradient: 'from-violet-600 to-purple-600',
+    glow: 'group-hover:shadow-purple-500/25',
+    stats: () => getDistributorStats(),
+    features: ['Multi-sheet Ledger Upload', 'Party-wise Sales & Collections', 'Outstanding Tracking', 'Collection Rate Analysis'],
   },
 ]
 
@@ -162,7 +189,7 @@ export default function Home() {
       {/* Department Cards */}
       <div>
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">Departments</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {modules.map(mod => {
             const accessible = mod.id === null ? true : canAccess(mod.id)
             const stats = mod.stats(data)

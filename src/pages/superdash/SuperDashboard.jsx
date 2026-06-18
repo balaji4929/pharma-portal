@@ -4,7 +4,7 @@ import {
   TrendingUp, TrendingDown, Package, Gift, ShoppingCart, BarChart2,
   Upload, Plus, X, Check, FileSpreadsheet, AlertTriangle, Search,
   Trash2, Activity, DollarSign, Zap, Calculator, Edit2,
-  ChevronDown, Award, Target
+  ChevronDown, Award, Target, Building2, ArrowRight, Users, CreditCard
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import {
@@ -16,9 +16,10 @@ import { useApp } from '../../contexts/AppContext'
 import toast from 'react-hot-toast'
 
 // ── LocalStorage keys ─────────────────────────────────────────────────────────
-const LS_EXPENSES   = 'pharma_expenses'
-const LS_PROD_COSTS = 'pharma_product_costs'
-const LS_SALES_DATA = 'pharma_sales_data'
+const LS_EXPENSES     = 'pharma_expenses'
+const LS_PROD_COSTS   = 'pharma_product_costs'
+const LS_SALES_DATA   = 'pharma_sales_data'
+const LS_DISTRIBUTORS = 'pharma_distributors'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const COLORS = ['#00e5ff','#3fb950','#58a6ff','#d29922','#f85149','#bc8cff','#ff9f43','#26de81','#fd9644','#a29bfe']
@@ -78,6 +79,7 @@ export default function SuperDashboard() {
   const [expenses, setExpenses]         = useState([])
   const [productCosts, setProductCosts] = useState({})
   const [salesData, setSalesData]       = useState([])
+  const [distributors, setDistributors] = useState([])
   const [showForm, setShowForm]         = useState(false)
   const [editId, setEditId]             = useState(null)
   const [form, setForm]                 = useState({ date: '', category: '', description: '', department: '', amount: '' })
@@ -94,9 +96,11 @@ export default function SuperDashboard() {
       const e = localStorage.getItem(LS_EXPENSES)
       const c = localStorage.getItem(LS_PROD_COSTS)
       const s = localStorage.getItem(LS_SALES_DATA)
+      const d = localStorage.getItem(LS_DISTRIBUTORS)
       if (e) setExpenses(JSON.parse(e))
       if (c) setProductCosts(JSON.parse(c))
       if (s) setSalesData(JSON.parse(s))
+      if (d) setDistributors(JSON.parse(d))
     } catch {}
   }, [])
 
@@ -984,6 +988,117 @@ export default function SuperDashboard() {
           )}
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 6 — DISTRIBUTOR OVERVIEW
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Distributor Overview</p>
+          <button
+            onClick={() => navigate('/distributors')}
+            className="flex items-center gap-1.5 text-xs text-brand-primary hover:text-brand-primary/80 font-medium transition-colors"
+          >
+            Full Details <ArrowRight size={12} />
+          </button>
+        </div>
+
+        {distributors.length === 0 ? (
+          <div
+            onClick={() => navigate('/distributors')}
+            className="glass-card p-5 flex items-center gap-4 cursor-pointer hover:border-brand-primary/30 transition-colors group"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <Building2 size={20} className="text-brand-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">No distributor data yet</p>
+              <p className="text-xs text-slate-400 mt-0.5">Upload your billing software ledger export to see party-wise totals here</p>
+            </div>
+            <ArrowRight size={16} className="text-slate-600 group-hover:text-brand-primary ml-auto transition-colors" />
+          </div>
+        ) : (
+          <>
+            {/* KPI row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                {
+                  label: 'Total Distributors',
+                  value: distributors.length,
+                  icon: Users,
+                  c: 'text-brand-primary', bg: 'bg-brand-primary/10',
+                  raw: true,
+                },
+                {
+                  label: 'Total Sales Billed',
+                  value: fmt(distributors.reduce((s, d) => s + (d.totalSales || 0), 0)),
+                  icon: BarChart2,
+                  c: 'text-blue-400', bg: 'bg-blue-500/10',
+                },
+                {
+                  label: 'Total Collected',
+                  value: fmt(distributors.reduce((s, d) => s + (d.totalCollections || 0), 0)),
+                  icon: TrendingUp,
+                  c: 'text-emerald-400', bg: 'bg-emerald-500/10',
+                },
+                {
+                  label: 'Total Outstanding',
+                  value: fmt(distributors.reduce((s, d) => s + (d.outstanding || 0), 0)),
+                  icon: AlertTriangle,
+                  c: 'text-amber-400', bg: 'bg-amber-500/10',
+                },
+              ].map((card, i) => (
+                <div key={i} className="glass-card p-4">
+                  <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-2`}>
+                    <card.icon size={16} className={card.c} />
+                  </div>
+                  <p className={`text-lg font-bold ${card.c}`}>{card.value}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{card.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Top 5 outstanding */}
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <AlertTriangle size={14} className="text-amber-400" /> Top Outstanding Parties
+                </h3>
+                <button onClick={() => navigate('/distributors')} className="text-xs text-brand-primary hover:underline flex items-center gap-1">
+                  View all <ArrowRight size={11} />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {[...distributors]
+                  .sort((a, b) => (b.outstanding || 0) - (a.outstanding || 0))
+                  .slice(0, 5)
+                  .map((d, i) => {
+                    const pct = d.totalSales > 0 ? Math.min(100, ((d.totalCollections || 0) / d.totalSales) * 100) : 0
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-xs text-slate-600 w-4 font-mono">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-medium text-white truncate max-w-[180px]">{d.name}</span>
+                            <span className="text-xs font-semibold text-amber-400 font-mono ml-2 flex-shrink-0">{fmt(d.outstanding)}</span>
+                          </div>
+                          <div className="h-1.5 bg-dark-hover rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${pct >= 80 ? 'bg-emerald-400' : pct >= 50 ? 'bg-amber-400' : 'bg-red-400'}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-slate-500 w-10 text-right flex-shrink-0">{pct.toFixed(0)}% pd</span>
+                      </div>
+                    )
+                  })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
     </div>
   )
 }
