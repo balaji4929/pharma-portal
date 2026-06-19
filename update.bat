@@ -11,6 +11,14 @@ if "%MSG%"=="" set MSG=Update: %date% %time%
 git commit -m "%MSG%"
 git push origin main
 echo.
-echo Pushed! GitHub Actions will auto-deploy to pulss.co.in/operations in ~2 mins.
+echo ✅ Pushed to GitHub!
+echo.
+echo Now SSH into VPS and run:
+echo   cd /var/www/pharma-portal
+echo   git pull
+echo   npm install
+echo   npm run build
+echo   pm2 restart pharma-api
+echo.
 :end
 pause

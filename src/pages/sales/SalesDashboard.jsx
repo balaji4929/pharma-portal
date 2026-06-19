@@ -5,6 +5,7 @@ import {
   ChevronDown, Search, Database
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
+import api from '../../services/api'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -157,21 +158,55 @@ export default function SalesDashboard() {
   const [filter, setFilter]         = useState('')
   const fileRef = useRef()
 
-  // ── Load saved data on mount ────────────────────────────────────────────────
+  // ── Load saved data on mount (API first, localStorage fallback) ────────────
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_DATA)
-      const meta = localStorage.getItem(LS_META)
-      if (raw) {
-        setSavedData(JSON.parse(raw))
-        if (meta) setSavedMeta(JSON.parse(meta))
-        setPhase('dashboard')
-      } else {
+    const loadData = async () => {
+      // Try API first
+      try {
+        const { meta, records } = await api.getSales()
+        if (meta && records && records.length > 0) {
+          // Map DB rows back to frontend shape
+          const data = records.map(r => ({
+            ...r.raw_data,
+            product_name: r.product_name,
+            category: r.category,
+            revenue: r.revenue,
+            qty_sold: r.units_sold,
+            stock: r.stock_level,
+            date: r.month,
+          }))
+          const uiMeta = {
+            fileName: meta.file_name,
+            rowCount: meta.row_count,
+            uploadedAt: meta.uploaded_at,
+            columns: meta.columns,
+          }
+          setSavedData(data)
+          setSavedMeta(uiMeta)
+          // Also cache locally
+          localStorage.setItem(LS_DATA, JSON.stringify(data))
+          localStorage.setItem(LS_META, JSON.stringify(uiMeta))
+          setPhase('dashboard')
+          return
+        }
+      } catch (_) { /* API unavailable, try localStorage */ }
+
+      // Fallback to localStorage
+      try {
+        const raw = localStorage.getItem(LS_DATA)
+        const meta = localStorage.getItem(LS_META)
+        if (raw) {
+          setSavedData(JSON.parse(raw))
+          if (meta) setSavedMeta(JSON.parse(meta))
+          setPhase('dashboard')
+        } else {
+          setPhase('empty')
+        }
+      } catch {
         setPhase('empty')
       }
-    } catch {
-      setPhase('empty')
     }
+    loadData()
   }, [])
 
   // ── Handle file selection ───────────────────────────────────────────────────
@@ -204,24 +239,34 @@ export default function SalesDashboard() {
   }
 
   // ── Confirm mapping → process & persist ─────────────────────────────────────
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!mapping.product_name) { alert('Map at least the Product Name column.'); return }
     const data = applyMapping(parsed.sheets, selSheet, mapping)
+    const columns = Object.values(mapping)
     const meta = {
       fileName: parsed.fileName, sheetName: selSheet,
       rowCount: data.length, uploadedAt: new Date().toISOString(), mapping
     }
+    // Always save to localStorage first
     localStorage.setItem(LS_DATA,   JSON.stringify(data))
     localStorage.setItem(LS_META,   JSON.stringify(meta))
     localStorage.setItem(LS_SCHEMA, JSON.stringify({ mapping, sheetName: selSheet }))
     setSavedData(data); setSavedMeta(meta); setPhase('dashboard')
+
+    // Also save to PostgreSQL in background
+    try {
+      await api.saveSales(parsed.fileName, columns, data)
+    } catch (err) {
+      console.warn('Sales not saved to DB (will use local cache):', err.message)
+    }
   }
 
   // ── Clear all saved data ────────────────────────────────────────────────────
-  const handleClear = () => {
+  const handleClear = async () => {
     if (!window.confirm('Clear all uploaded sales data?')) return
     ;[LS_DATA, LS_META, LS_SCHEMA].forEach(k => localStorage.removeItem(k))
     setSavedData(null); setSavedMeta(null); setParsed(null); setPhase('empty')
+    try { await api.clearSales() } catch (_) {}
   }
 
   // ── Analytics computation ───────────────────────────────────────────────────

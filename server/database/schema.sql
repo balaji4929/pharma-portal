@@ -314,3 +314,181 @@ INSERT INTO transporters (name, contact, email, type, rating) VALUES
   ('VRL Logistics', '9011223344', 'ops@vrl.co.in', 'road', 4.5),
   ('DTDC Cargo', '9022334455', 'cargo@dtdc.com', 'courier', 4.2),
   ('BlueDart Express', '9033445566', 'enterprise@bluedart.com', 'courier', 4.7);
+
+-- ============================================================
+-- SALES ANALYSIS (uploaded from billing software)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sales_uploads (
+  id           SERIAL PRIMARY KEY,
+  file_name    VARCHAR(255) NOT NULL,
+  row_count    INT DEFAULT 0,
+  columns      JSONB DEFAULT '[]',
+  uploaded_by  INT REFERENCES users(id),
+  uploaded_at  TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS sales_records (
+  id              SERIAL PRIMARY KEY,
+  upload_id       INT REFERENCES sales_uploads(id) ON DELETE CASCADE,
+  product_name    VARCHAR(300),
+  category        VARCHAR(150),
+  revenue         NUMERIC(14,2),
+  units_sold      INT,
+  stock_level     INT,
+  month           VARCHAR(20),
+  territory       VARCHAR(150),
+  raw_data        JSONB DEFAULT '{}',
+  created_at      TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sales_upload ON sales_records(upload_id);
+CREATE INDEX IF NOT EXISTS idx_sales_product ON sales_records(product_name);
+
+-- ============================================================
+-- DISTRIBUTOR LEDGER (party-wise upload from billing software)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS distributor_parties (
+  id              SERIAL PRIMARY KEY,
+  party_name      VARCHAR(300) NOT NULL,
+  sales           NUMERIC(14,2) DEFAULT 0,
+  collections     NUMERIC(14,2) DEFAULT 0,
+  outstanding     NUMERIC(14,2) DEFAULT 0,
+  collection_pct  NUMERIC(5,2) DEFAULT 0,
+  created_at      TIMESTAMP DEFAULT NOW(),
+  updated_at      TIMESTAMP DEFAULT NOW(),
+  UNIQUE(party_name)
+);
+
+CREATE TABLE IF NOT EXISTS distributor_ledger_entries (
+  id            SERIAL PRIMARY KEY,
+  party_id      INT REFERENCES distributor_parties(id) ON DELETE CASCADE,
+  entry_date    DATE,
+  particulars   TEXT,
+  debit         NUMERIC(14,2) DEFAULT 0,
+  credit        NUMERIC(14,2) DEFAULT 0,
+  balance       NUMERIC(14,2) DEFAULT 0,
+  created_at    TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ledger_party ON distributor_ledger_entries(party_id);
+CREATE INDEX IF NOT EXISTS idx_ledger_date  ON distributor_ledger_entries(entry_date);
+
+-- ============================================================
+-- EXPENSES
+-- ============================================================
+CREATE TABLE IF NOT EXISTS expenses (
+  id            SERIAL PRIMARY KEY,
+  date          DATE NOT NULL DEFAULT CURRENT_DATE,
+  category      VARCHAR(100) NOT NULL,
+  description   TEXT,
+  amount        NUMERIC(12,2) NOT NULL,
+  payment_mode  VARCHAR(50) DEFAULT 'cash',
+  reference     VARCHAR(100),
+  entered_by    INT REFERENCES users(id),
+  created_at    TIMESTAMP DEFAULT NOW(),
+  updated_at    TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_expenses_date     ON expenses(date);
+CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);
+
+-- ============================================================
+-- PRODUCT COSTS (for margin calculation)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS product_costs (
+  id            SERIAL PRIMARY KEY,
+  product_name  VARCHAR(300) NOT NULL UNIQUE,
+  purchase_rate NUMERIC(10,2) DEFAULT 0,
+  mrp           NUMERIC(10,2) DEFAULT 0,
+  gst_pct       NUMERIC(5,2) DEFAULT 12,
+  notes         TEXT,
+  updated_at    TIMESTAMP DEFAULT NOW()
+);
+
+-- ============================================================
+-- GIFT DISPATCH INVOICES (company → distributor → chemist)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS gift_dispatch_invoices (
+  id               SERIAL PRIMARY KEY,
+  invoice_no       VARCHAR(100) UNIQUE NOT NULL,
+  dispatch_date    DATE NOT NULL DEFAULT CURRENT_DATE,
+  distributor_name VARCHAR(200) NOT NULL,
+  total_items      INT DEFAULT 0,
+  status           VARCHAR(30) DEFAULT 'dispatched',
+  notes            TEXT,
+  created_by       INT REFERENCES users(id),
+  created_at       TIMESTAMP DEFAULT NOW(),
+  updated_at       TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS gift_dispatch_items (
+  id                   SERIAL PRIMARY KEY,
+  dispatch_invoice_id  INT REFERENCES gift_dispatch_invoices(id) ON DELETE CASCADE,
+  chemist_id           INT REFERENCES chemists(id),
+  gift_article_id      INT REFERENCES gift_articles(id),
+  scheme_id            INT REFERENCES schemes(id),
+  qty_dispatched       INT NOT NULL DEFAULT 1,
+  qty_delivered        INT DEFAULT 0,
+  qty_returned         INT DEFAULT 0,
+  qty_damaged          INT DEFAULT 0,
+  status               VARCHAR(30) DEFAULT 'dispatched',
+  delivered_date       DATE,
+  notes                TEXT,
+  created_at           TIMESTAMP DEFAULT NOW(),
+  updated_at           TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_dispatch_inv_date ON gift_dispatch_invoices(dispatch_date);
+CREATE INDEX IF NOT EXISTS idx_dispatch_item_chemist ON gift_dispatch_items(chemist_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_item_article ON gift_dispatch_items(gift_article_id);
+
+-- ============================================================
+-- CHEMIST DOCUMENTS (purchase proof uploads)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS chemist_documents (
+  id            SERIAL PRIMARY KEY,
+  chemist_id    INT REFERENCES chemists(id) ON DELETE CASCADE,
+  scheme_id     INT REFERENCES schemes(id) ON DELETE SET NULL,
+  invoice_id    INT REFERENCES distributor_invoices(id) ON DELETE SET NULL,
+  file_name     VARCHAR(255) NOT NULL,
+  file_path     VARCHAR(500) NOT NULL,
+  file_size     INT,
+  file_type     VARCHAR(100),
+  doc_type      VARCHAR(50) DEFAULT 'purchase_proof',
+  notes         TEXT,
+  uploaded_by   INT REFERENCES users(id),
+  created_at    TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_chemist_docs ON chemist_documents(chemist_id, scheme_id);
+
+-- ── Logistics Entries ─────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS logistics_entries (
+  id                SERIAL PRIMARY KEY,
+  invoice_no        VARCHAR(100) NOT NULL,
+  invoice_date      DATE NOT NULL,
+  invoice_value     NUMERIC(14,2) DEFAULT 0,
+  boxes_packed      INTEGER DEFAULT 0,
+  approx_weight_kg  NUMERIC(8,2) DEFAULT 0,
+  packed_by         VARCHAR(150),
+  checked_by        VARCHAR(150),
+  check_time        TIME,
+  transporter       VARCHAR(100),            -- e.g. Delhivery, Bluedart, Vtrans
+  tracking_url      VARCHAR(500),            -- carrier tracking page URL
+  -- Docket details (entered next day)
+  dispatch_date     DATE,
+  docket_no         VARCHAR(100),
+  transport_cost    NUMERIC(10,2) DEFAULT 0,
+  -- Status
+  status            VARCHAR(30) DEFAULT 'packed',  -- packed | dispatched | delivered
+  delivery_date     DATE,
+  notes             TEXT,
+  -- Metadata
+  entered_by        INTEGER REFERENCES users(id),
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_logistics_invoice ON logistics_entries(invoice_no);
+CREATE INDEX IF NOT EXISTS idx_logistics_date    ON logistics_entries(invoice_date DESC);
+CREATE INDEX IF NOT EXISTS idx_logistics_status  ON logistics_entries(status);

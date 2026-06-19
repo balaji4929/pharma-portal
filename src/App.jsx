@@ -28,6 +28,7 @@ import Schemes from './pages/gift/Schemes'
 import DataEntry from './pages/gift/DataEntry'
 import GiftInventory from './pages/gift/GiftInventory'
 import Fulfillment from './pages/gift/Fulfillment'
+import GiftDispatch from './pages/gift/GiftDispatch'
 
 // Logistics
 import LogisticsDashboard from './pages/logistics/LogisticsDashboard'
@@ -69,6 +70,7 @@ function AppRoutes() {
         <Route path="gift/data-entry" element={<DataEntry />} />
         <Route path="gift/inventory" element={<GiftInventory />} />
         <Route path="gift/fulfillment" element={<Fulfillment />} />
+        <Route path="gift/dispatch" element={<GiftDispatch />} />
 
         {/* Logistics */}
         <Route path="logistics" element={<LogisticsDashboard />} />

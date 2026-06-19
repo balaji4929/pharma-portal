@@ -12,6 +12,7 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import toast from 'react-hot-toast'
+import api from '../../services/api'
 
 const LS_KEY = 'pharma_distributors'
 const COLORS = ['#00e5ff','#3fb950','#58a6ff','#d29922','#f85149','#bc8cff','#ff9f43','#26de81','#fd9644','#a29bfe']
@@ -446,12 +447,48 @@ export default function DistributorDashboard() {
   const indRef = useRef()
 
   useEffect(() => {
-    setDistributors(loadDistributors())
+    const loadData = async () => {
+      // Try API first
+      try {
+        const rows = await api.getDistributors()
+        if (rows && rows.length > 0) {
+          const list = rows.map(r => ({
+            id: String(r.id),
+            name: r.party_name,
+            totalSales: parseFloat(r.sales) || 0,
+            totalCollections: parseFloat(r.collections) || 0,
+            outstanding: parseFloat(r.outstanding) || 0,
+            collectionPct: parseFloat(r.collection_pct) || 0,
+            lastUpdated: r.updated_at,
+            ledger: [],
+          }))
+          setDistributors(list)
+          saveDistributors(list) // cache locally
+          return
+        }
+      } catch (_) { /* API unavailable, use localStorage */ }
+      setDistributors(loadDistributors())
+    }
+    loadData()
   }, [])
 
-  const save = useCallback(list => {
+  const save = useCallback(async (list) => {
     setDistributors(list)
     saveDistributors(list)
+    // Sync to PostgreSQL in background
+    try {
+      const parties = list.map(p => ({
+        partyName: p.name,
+        sales: p.totalSales || 0,
+        collections: p.totalCollections || 0,
+        outstanding: p.outstanding || 0,
+        collectionPct: p.collectionPct || (p.totalSales > 0 ? (p.totalCollections / p.totalSales) * 100 : 0),
+        ledger: p.ledger || [],
+      }))
+      await api.saveDistributors(parties)
+    } catch (err) {
+      console.warn('Distributors not saved to DB (using local cache):', err.message)
+    }
   }, [])
 
   // ── parse file → preview ──────────────────────────────────────────────────
@@ -540,11 +577,15 @@ export default function DistributorDashboard() {
     toast.success(`✅ ${incoming.length} distributor${incoming.length !== 1 ? 's' : ''} imported/updated`)
   }, [distributors, save])
 
-  const deleteParty = id => {
+  const deleteParty = async id => {
     if (!window.confirm('Delete this distributor and all their ledger data?')) return
     const updated = distributors.filter(d => d.id !== id)
     save(updated)
     toast.success('Distributor removed')
+    // Delete from DB if it's a numeric ID (server-assigned)
+    if (!String(id).startsWith('dist_')) {
+      try { await api.deleteDistributor(id) } catch (_) {}
+    }
   }
 
   // ── sort + filter ──────────────────────────────────────────────────────────

@@ -9,18 +9,18 @@ export default {
     extend: {
       colors: {
         dark: {
-          bg: '#0d1117',
-          card: '#161b22',
-          border: '#21262d',
-          hover: '#1c2128',
+          bg: '#e4ebe0',       // page background — light sage green
+          card: '#ffffff',     // card background — white
+          border: '#d0dbc8',   // borders — light sage
+          hover: '#f0f6ec',    // hover states — very light sage
         },
         brand: {
-          primary: '#00e5ff',
-          accent: '#00b8d4',
-          success: '#3fb950',
-          warning: '#d29922',
-          danger: '#f85149',
-          info: '#58a6ff',
+          primary: '#4d7a3e',  // olive green (replaces cyan)
+          accent: '#3a5e2e',   // darker olive
+          success: '#2d7a29',  // green
+          warning: '#d97706',  // amber
+          danger: '#dc2626',   // red
+          info: '#4a6fa1',     // blue
         }
       },
       fontFamily: {

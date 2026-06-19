@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Users, Plus, Search, Phone, MapPin, Star, TrendingUp, ChevronRight, X, Eye } from 'lucide-react'
+import { Users, Plus, Search, Phone, MapPin, Star, TrendingUp, ChevronRight, X, Eye, BookOpen, Download } from 'lucide-react'
 import { useApp } from '../../contexts/AppContext'
 import Modal from '../../components/ui/Modal'
 import { StatusBadge } from '../../components/ui/Badge'
 import toast from 'react-hot-toast'
+import ChemistLedger from './ChemistLedger'
+import { exportToExcel } from '../../utils/exportUtils'
 
 const emptyForm = { name: '', shop: '', dlNo: '', phone: '', territory: '', zone: '', rep: '', status: 'active' }
 
@@ -12,6 +14,7 @@ export default function Chemists() {
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [showProfile, setShowProfile] = useState(null)
+  const [ledgerChemist, setLedgerChemist] = useState(null)
   const [form, setForm] = useState(emptyForm)
 
   const filtered = data.chemists.filter(c =>
@@ -48,7 +51,10 @@ export default function Chemists() {
           <h1 className="text-xl font-bold text-white flex items-center gap-2"><Users size={22} className="text-emerald-400" /> Chemists</h1>
           <p className="text-slate-400 text-sm mt-0.5">{data.chemists.length} enrolled chemists</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15} /> Add Chemist</button>
+        <div className="flex gap-2">
+          <button onClick={() => exportToExcel(data.chemists.map(c => ({ Name: c.name, Shop: c.shop || c.shop_name, Phone: c.phone, Territory: c.territory, Zone: c.zone, Rep: c.rep || c.assigned_rep, 'Total Purchase': c.totalPurchase, Status: c.status })), 'chemists')} className="btn-ghost flex items-center gap-1.5 text-sm"><Download size={14} /> Excel</button>
+          <button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15} /> Add Chemist</button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
@@ -81,9 +87,14 @@ export default function Chemists() {
                 <p className="text-[10px] text-slate-500">Active Schemes</p>
               </div>
             </div>
-            <button onClick={() => setShowProfile(c)} className="w-full btn-secondary justify-center py-1.5 text-xs">
-              <Eye size={13} /> View 360° Profile <ChevronRight size={12} />
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setShowProfile(c)} className="flex-1 btn-secondary justify-center py-1.5 text-xs">
+                <Eye size={13} /> 360° Profile
+              </button>
+              <button onClick={() => setLedgerChemist(c)} className="flex-1 btn-primary justify-center py-1.5 text-xs">
+                <BookOpen size={13} /> Ledger
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -239,6 +250,11 @@ export default function Chemists() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Chemist Ledger Modal */}
+      {ledgerChemist && (
+        <ChemistLedger chemist={ledgerChemist} onClose={() => setLedgerChemist(null)} />
       )}
     </div>
   )

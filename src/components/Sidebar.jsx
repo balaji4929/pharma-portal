@@ -59,6 +59,7 @@ const navConfig = [
       { label: 'Data Entry', icon: FileText, path: '/gift/data-entry' },
       { label: 'Gift Inventory', icon: Package, path: '/gift/inventory' },
       { label: 'Fulfillment', icon: PackageCheck, path: '/gift/fulfillment' },
+      { label: 'Dispatch Invoices', icon: Truck, path: '/gift/dispatch' },
     ]
   },
   {
